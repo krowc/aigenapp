@@ -1,0 +1,198 @@
+# Node dependencies
+node_modules/
+.pnpm-store/
+.pnp.*
+
+# Expo / React Native / build artifacts
+.expo/
+.expo-shared/
+web-build/
+dist/
+build/
+android/app/build/
+ios/build/
+ios/Pods/
+ios/Podfile.lock
+expo-env.d.ts
+
+# Generated native folders (managed workflow)
+android/
+ios/
+
+# Metro / packager
+.metro-cache/
+.metro-health-check*
+/tmp/metro-*
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Environment / secret files
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Key stores / signing keys
+*.jks
+*.keystore
+*.p12
+*.p8
+*.pem
+*.key
+*.mobileprovision
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage and caches
+coverage/
+.vitest/
+jest-cache/
+.nyc_output/
+
+# Temporary / local
+*.tmp
+*.log
+*.swp
+*.swo
+*.orig.*
+
+# Gradle / Android local config
+.gradle/
+**/gradle-wrapper.jar
+local.properties
+
+# Xcode
+*.xcuserdata/
+*.xcworkspace/
+xcuserdata/
+
+# Misc developer/test folders
+.vscode-test/
+.kotlin/
+```
+
+
+```C:\Users\drioj\Desktop\Aigenapp\LOG.md#L1-500
+# Change Log / Activity Log
+A chronological record of notable debugging steps, configuration changes, and proposed updates for this repository.
+Entries are written in reverse-chronological order (newest first). This file is intended to be updated whenever changes are approved for the codebase.
+
+---
+
+## 2025-10-30 — Prepared .gitignore update and created LOG.md (proposed)
+- Author: Assistant (prepared content for user)
+- Summary:
+  - Prepared an expanded `.gitignore` to ignore common Node/Expo/React Native build artifacts, caches, environment files, IDE files, signing keys, and OS-specific temporary files.
+  - Created this `LOG.md` file to serve as a single chronological record of debugging activity, configuration changes, and approved patches.
+- Notes:
+  - The `.gitignore` contents were prepared and provided to the user. Please commit the `.gitignore` and this `LOG.md` to the repository when you are ready.
+  - This entry is marked as "prepared" to indicate the change has been authored in content and awaits your commit/approval to be applied to the repo history.
+
+---
+
+## 2025-10-28 — Debugging Session Summary
+- Source: `DEBUG_SESSION.md` (imported into the log for historical traceability)
+- Summary of issues observed:
+  1. App crashed in Expo Go with an error:
+     - "Uncaught Error: java.io.IOException: Failed to download remote update"
+     - The app worked on web but failed on an Android device.
+  2. Missing navigation header on Android:
+     - Blue "My Profile" header visible on web but not on the native Android device.
+- Actions taken / solutions implemented:
+  1. Remote Update Crash Fix
+     - Root cause: Expo Go attempting to download OTA updates during development; network/device couldn't fetch the update, causing an IO exception.
+     - Solution: Disabled updates in `app.json`:
+       ```
+       {
+         "expo": {
+           "updates": {
+             "enabled": false,
+             "fallbackToCacheTimeout": 0
+           }
+         }
+       }
+       ```
+     - Additional step: Recommend starting Expo in Tunnel mode for reliable device connection:
+       ```
+       npx expo start --tunnel --clear
+       ```
+  2. Navigation Dependencies
+     - Installed required native navigation packages to support native behavior:
+       ```
+       npx expo install react-native-screens react-native-gesture-handler
+       ```
+  3. Debugging Process
+     - Isolated app components:
+       - Temporarily rendered `ProfileScreen` directly (bypassing navigation) and confirmed the UI component worked in isolation.
+       - The issue was narrowed to navigation/native integration when direct rendering succeeded.
+     - Restored navigation setup:
+       - Reverted `App.tsx` to use `AppNavigator` after ensuring native dependencies were installed.
+- Pending improvements / follow-up:
+  1. Navigation header fix:
+     - Initialize gesture handler at app entry (top of `App.tsx`):
+       ```ts
+       import 'react-native-gesture-handler';
+       ```
+     - Optionally enable native screens optimizations:
+       ```ts
+       import { enableScreens } from 'react-native-screens';
+       enableScreens();
+       ```
+  2. Development tips:
+     - Use Tunnel mode when LAN discovery is unreliable.
+     - Keep `updates.enabled = false` in development if OTA update fetching fails on device.
+     - Ensure React Navigation native dependencies are installed for native platforms.
+  3. Platform differences:
+     - Web may display navigation elements without native initialization; native platforms require native package setup and entry-point imports.
+
+- Files referenced as modified during the debugging session:
+  - `app.json`: Updates configuration added to disable OTA updates during development.
+  - `App.tsx`: Temporarily altered during isolation testing; later restored to mount `AppNavigator`.
+  - `package.json`: Navigation dependencies added via `npx expo install`.
+
+- Helpful commands from the debugging session:
+  ```
+  # Start with tunnel and clear caches
+  npx expo start --tunnel --clear
+
+  # Install navigation dependencies
+  npx expo install react-native-screens react-native-gesture-handler
+  ```
+
+---
+
+## Notes on process and governance
+- This `LOG.md` is a living artifact: every approved and applied change (bugfixes, config changes, file edits) should be appended here with the date, author, summary of changes, and any referenced commands or files modified.
+- Recommended format for future entries:
+  - Date — Short title
+  - Author
+  - Summary of change
+  - Files changed (paths)
+  - Commands and notes
+  - Verification steps
+
+---
+
+## How to use this file
+- When you approve a change prepared by me (or any contributor), append an entry here indicating:
+  - That you approved and committed the change,
+  - The commit hash (if available),
+  - Any verification steps performed (e.g., "Verified on Android device with Expo Go" or "Ran `npx expo start --tunnel --clear` and confirmed navigation header appears").
+- Keep entries concise but actionable. This file should help future debugging and onboarding by preserving the "why" behind changes.
+
+---
