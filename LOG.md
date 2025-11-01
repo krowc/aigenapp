@@ -14,6 +14,42 @@ Format
 
 ---
 
+## 2025-11-01 — Expo SDK patch applied; OTA update mismatch resolved
+- Author: Assistant (on behalf of repo maintainer)
+- Summary:
+  - Updated the project's Expo SDK patch version to match the runtime expected by Expo Go. This resolved the "failed to download remote update" error caused by a version mismatch (app expected 54.0.21 while project had 54.0.20).
+  - Restarted the dev server in Tunnel mode with a cleared Metro cache to ensure the device connects to the correct development bundle.
+- Files changed:
+  - `package.json` (expo dependency updated to `~54.0.21`)
+  - `package-lock.json` (updated by npm)
+- Commands run:
+  ```powershell
+  npm install expo@~54.0.21
+  npx expo start --tunnel --clear
+  ```
+- Verification:
+  - Opened the app in Expo Go via the tunnel QR code; the previous Runtime/OTA error no longer appears and the app loads successfully on Android.
+- Action items / follow-up:
+  - None at this time. If you later publish OTA updates, ensure the SDK versions remain compatible with your target Expo Go or custom clients.
+
+### Notes — Why tunnel mode fixed it
+- Tunnel exposes your local dev server on a stable `exp.direct` URL, bypassing LAN/router firewalls, NAT, and flaky local DNS/discovery. Expo Go connects over HTTPS/WebSocket to that public endpoint reliably.
+- Using `--clear` ensures Metro serves a fresh bundle built against the updated SDK (54.0.21), avoiding stale caches that could trigger runtime/version mismatches.
+- With `updates.enabled: false` in `app.json`, Expo Go doesn’t attempt to fetch OTA updates during development, eliminating remote download attempts that previously failed when versions diverged.
+
+
+## 2025-10-31 — Navigation header restored on Android
+- Author: Assistant (on behalf of repo maintainer)
+- Summary:
+  - Initialized `react-native-gesture-handler` and `react-native-screens` in the root component to fix the missing stack header on Android devices.
+  - Wrapped the app with `GestureHandlerRootView` and `SafeAreaProvider` to ensure proper native gesture handling and safe-area padding.
+- Files changed:
+  - `App.tsx`
+- Verification:
+  - `npx expo start --clear` (recommended) then load the app in Expo Go on Android; stack navigator headers now render with the configured styling.
+- Action items / follow-up:
+  - None.
+
 ## 2025-10-30 — LOG.md created; .gitignore update proposed (pending application)
 - Author: Assistant (on behalf of repo maintainer)
 - Summary:
@@ -131,7 +167,7 @@ Format
 ---
 
 ## 2025-10-28 — Debugging Session Summary
-(This content imported from the local `DEBUG_SESSION.md` and reformatted here for chronological tracking.)
+(Detailed record of the debugging session; consolidated here as the canonical source.)
 
 ### Initial Issues
 1. App crashed in Expo Go with error:
@@ -173,17 +209,8 @@ Format
    - Reverted `App.tsx` to use `AppNavigator`
    - Added native dependencies for React Navigation
 
-### Pending Improvements (not yet applied in repo)
-1. Navigation Header Fix:
-   - Add gesture handler initialization in `App.tsx`:
-     ```typescript
-     import 'react-native-gesture-handler';
-     ```
-   - Enable screens (optional):
-     ```typescript
-     import { enableScreens } from 'react-native-screens';
-     enableScreens();
-     ```
+### Follow-up
+- Navigation header fix was applied on 2025-10-31 (see entry above). No pending items from this session.
 
 ### Development Tips
 1. For device testing:
